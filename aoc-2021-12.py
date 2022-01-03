@@ -54,7 +54,7 @@ testdat3 = [
 def cleaner(lst):
     return [it.split('-') for it in lst]
 
-def solver(links):    
+def solver(links, pt2=False):    
     sdf = pd.DataFrame({'l0': ['start']})
     results = []
     i = 0
@@ -72,13 +72,16 @@ def solver(links):
                     mg = mg.append({il: frm, i2: dest}, ignore_index=True)
         sdf = pd.merge(sdf, mg, how='left', on=[il])
 
-        # Keep only rows which do not return to smaller caves
+        # Keep only rows which do not return to smaller caves (or switch for pt 2 logic)
         keep = []
         for ls in sdf.values.tolist():
             cnts = Counter(ls)
-            keep.append(len([k for k, v in cnts.items() if v > 1 and k.islower()])==0)
-        sdf = sdf.loc[keep, :]
-    
+            if pt2:
+                keep.append(cnts['start'] == 1 and len([k for k, v in cnts.items() if v > 1 and k.islower()]) <= 1 and len([k for k, v in cnts.items() if v > 2 and k.islower()]) == 0)
+            else:
+                keep.append(len([k for k, v in cnts.items() if v > 1 and k.islower()])==0)
+        sdf = sdf.loc[keep, :]           
+
         # Find and extract paths which reach the end
         ends = list(sdf[i2] == 'end')
         results.extend(sdf.loc[ends, :].values.tolist())
@@ -95,6 +98,8 @@ links = cleaner(puzldat)
 # Pt 1. Answer
 print(len(solver(links)))
 
+# Pt 2. Answer
+print(len(solver(links, pt2=True)))
 
 
 
