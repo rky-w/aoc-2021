@@ -58,4 +58,24 @@ ct = Counter(chain)
 # Pt 1. Answer
 print(max(ct.values()) - min(ct.values()))
 
-# Pt 2... 
+
+# Pt 2. New approach must be more efficient
+
+iir = {k: [k[0]+v, v+k[1]] for k, v in ir.items()}
+
+nd = Counter()
+for i in range(len(pt)-1):
+    nd[pt[i]+pt[i+1]] += 1
+
+els = Counter(pt)
+
+for xi in range(40):
+    n2 = deepcopy(nd)
+    for k, v in n2.items():
+        if v > 0:
+            els[ir[k]] += v
+            for ii in iir[k]:
+                nd[ii] += v
+            nd[k] -= v
+
+print(max(els.values()) - min(els.values())) 
