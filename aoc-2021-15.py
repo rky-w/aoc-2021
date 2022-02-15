@@ -26,7 +26,7 @@ def getarr(lst):
     return np.array([list(x) for x in lst], dtype=int)
 
 
-# Brute force recursion approach doesn't work, would take too long
+# Brute force recursion approach works but would take too long
 arr = getarr(testdat)
 
 start = (0, 0)
@@ -157,3 +157,20 @@ print(dijkstra(grapher(arr)))
 
 # Pt 2. Is 5 times larger, may need to speed up the above implementation
 
+def _adder(el, times = 1):
+    return ((el + times - 1) % 9) + 1
+adder = np.vectorize(_adder)
+
+def mplyer(arr, factor=5, **kwargs):
+    for i in range(factor):
+        if i == 0:
+            oarr = arr
+        else:
+            oarr = np.concatenate([oarr, adder(arr, times=i)], **kwargs)
+    return oarr
+
+
+arr = getarr(puzldat)
+newarr = mplyer(mplyer(arr, axis=1), axis=0)
+
+print(dijkstra(grapher(newarr)))
