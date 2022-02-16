@@ -1,10 +1,14 @@
 
+from queue import PriorityQueue
 import sys
+from threading import Timer
 from aocd.models import Puzzle
 from copy import deepcopy
 from collections import defaultdict, Counter
 import numpy as np
 import pandas as pd
+import time
+
 
 puzzle = Puzzle(year=2021, day=15)
 puzldat = [val for val in puzzle.input_data.splitlines()]
@@ -141,21 +145,21 @@ def dijkstra(graph):
         if end in cn:
             return dist[u] + graph['costs'][end]
 
-        for v in Q.intersection(graph['edges'][u]):
+        for v in cn:
             alt = dist[u] + graph['costs'][v]
             if alt < dist[v]:
                 dist[v] = alt
 
     return dist[len(dist)-1]
 
-arr = getarr(testdat)
+arr = getarr(puzldat)
 
 # Pt 1. Answer
 print(dijkstra(grapher(arr)))
 
 
 
-# Pt 2. Is 5 times larger, may need to speed up the above implementation
+# Pt 2. Grid is 5 times larger, trying to speed up with priority queue
 
 def _adder(el, times = 1):
     return ((el + times - 1) % 9) + 1
@@ -170,7 +174,78 @@ def mplyer(arr, factor=5, **kwargs):
     return oarr
 
 
-arr = getarr(puzldat)
-newarr = mplyer(mplyer(arr, axis=1), axis=0)
+class priorityq():
+    def __init__(self):
+        self.nodes = []
+        self.priorities = []
+        self.size = 0
 
-print(dijkstra(grapher(newarr)))
+    def add_with_priority(self, node, priority):
+        self.nodes.append(node)
+        self.priorities.append(priority)
+        self.size += 1
+
+    def extract_min(self):
+        self.size -= 1
+        del self.priorities[0]
+        return self.nodes.pop(0)
+
+    def decrease_priority(self, node, priority):
+        idx = self.nodes.index(node)
+        if idx: 
+            del self.nodes[idx]
+            del self.priorities[idx]
+            for i in reversed(range(idx)):
+                if self.priorities[i] <= priority:
+                    self.nodes.insert(i+1, node)
+                    self.priorities.insert(i+1, priority)
+                    break
+                elif i == 0 and priority < self.priorities[i]:
+                    self.nodes.insert(0, node)
+                    self.priorities.insert(0, priority)
+        else:
+            self.priorities[idx] = priority    
+
+
+def dijkstra_pq(graph):
+    dist = defaultdict(lambda: np.inf)
+    pq = priorityq()
+    for node in graph['nodes']:
+        dist[node] = np.inf
+        pq.add_with_priority(node, dist[node])
+    dist[0] = 0
+    pq.decrease_priority(0, 0)
+    end = max(graph['nodes'])
+
+    while pq.size:   
+        u = pq.extract_min()
+        nn = set(pq.nodes).intersection(graph['edges'][u])
+        # print(f'Min: {u}, nn: {nn}')
+        if end in nn:
+            # print(f'Found end: {end}')
+            return dist[u] + graph['costs'][end]
+        for v in nn:
+            alt = dist[u] + graph['costs'][v]
+            # print(f'New cost of {v}: {alt} (old cost: {dist[v]})')
+            if alt < dist[v]:
+                dist[v] = alt
+                # print(f'Pre nodes:\n\t{pq.nodes}')
+                # print(f'Pre priorities:\n\t{pq.priorities}')
+                pq.decrease_priority(v, alt)
+                # print(f'Post nodes:\n\t{pq.nodes}')
+                # print(f'Post priorities:\n\t{pq.priorities}')
+
+    return dist[len(dist)-1]       
+
+
+# Pt 2. Hopefully more efficient using priority queue
+arr = getarr(puzldat)
+arr = mplyer(mplyer(arr, axis=1), axis=0)
+graph = grapher(arr)
+
+tic = time.perf_counter()
+dijkstra_pq(graph)
+toc = time.perf_counter()
+print(f"Time elapsed {toc - tic:0.2f} seconds")
+
+
