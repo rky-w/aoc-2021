@@ -244,8 +244,8 @@ arr = mplyer(mplyer(arr, axis=1), axis=0)
 graph = grapher(arr)
 
 tic = time.perf_counter()
-dijkstra_pq(graph)
+print(dijkstra_pq(graph))
 toc = time.perf_counter()
 print(f"Time elapsed {toc - tic:0.2f} seconds")
-
+# 2819, but took 3 hours :o
 
