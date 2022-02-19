@@ -6,6 +6,8 @@ from collections import defaultdict, Counter
 import numpy as np
 import pandas as pd
 import time
+import math
+
 
 puzzle = Puzzle(year=2021, day=16)
 puzldat = [val for val in puzzle.input_data.splitlines()]
@@ -46,7 +48,7 @@ def litval(p) -> int:
             break
     return int(''.join(l), 2)
 
-   
+versum = 0
 def reader(pk, debug=False):
     global versum
     pv, pt = header(pk)
@@ -56,39 +58,53 @@ def reader(pk, debug=False):
     if pt == 4:
         lv = litval(pk)
         if debug: print(f"Litval hit: {lv}")
-        return
+        return lv
     else:
         if int(pk.pop(0)):
             pkn = int(''.join([pk.pop(0) for i in range(11)]), 2)
             if debug: print(f"Operator[1] pkn: {pkn}")
+            lvs = []
             while pkn:
                 if debug: print(f"op1 loopstart, pk:\n   {''.join(pk)}")
-                reader(pk)
+                lvs.append(reader(pk))
                 pkn -= 1
                 if debug: print(f"op1 loopend, pk:\n   {''.join(pk)}")
             if debug: print(f"Exiting op1, pk:\n   {''.join(pk)}")
         else:
             pkl = int(''.join([pk.pop(0) for i in range(15)]), 2)
             if debug: print(f"Operator[0] pkl: {pkl}, pk:\n   {''.join(pk)}")
+            lvs = []
             while pkl:
                 pklh = len(pk)
                 if debug: print(f"op0 loopstart, pk:\n   {''.join(pk)}")
-                reader(pk)
+                lvs.append(reader(pk))
                 pkln = len(pk)
                 pkl -= pklh - pkln
                 if debug: print(f"op0 loopend, pk:\n   {''.join(pk)}")
             if debug: print(f"Exiting op0, pk: \n   {''.join(pk)}")
-    return
+
+        if debug: print(f"Op {pt} on: {lvs}")
+
+        if pt == 0:
+            return sum(lvs)
+        elif pt  == 1:
+            return math.prod(lvs)
+        elif pt == 2:
+            return min(lvs)
+        elif pt == 3:
+            return max(lvs)
+        elif pt == 5:
+            return int(lvs[0] > lvs[1])
+        elif pt == 6:
+            return int(lvs[0] < lvs[1])
+        elif pt == 7:
+            return int(lvs[0] == lvs[1])
+        else:
+            raise ValueError(f"Type ({pt}) not handled")
 
 
-veradd = 0
-for packet in puzldat:
-    versum = 0
-    pk = h2b(packet)
-    reader(pk)
-    veradd += versum
-veradd
+versum = 0
+response = reader(h2b(puzldat[0]))
 
-print(f"Pt 1. Answer: {veradd}")
-
-
+print(f"Pt 1. Answer: {versum}")
+print(f"Pt 2. Answer: {response}")
