@@ -58,9 +58,27 @@ def trajy(ay):
     raise ValueError(f'Target not reached with initial y velocity: {hy}')
 
 
+
 # Pt 1. Answer
 tx, ty = ta(puzldat)
 ay = -ty[0]-1
 i, maxy = trajy(ay)
 print(maxy)
 
+
+
+# Find all starting trajectories
+
+""" 
+y's from ty[0] to maxy
+x's from ... to tx[1]
+"""
+
+res = []
+for x in range(1, tx[1]+1):
+    for y in range(ty[0], maxy+1):
+        if traj(x, y, tx, ty):
+            res.append((x, y))
+
+# Pt 2 answer, slow but works (could speed up by finding min x)
+print(len(res))
