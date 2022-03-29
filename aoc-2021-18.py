@@ -10,20 +10,31 @@ import time
 import math
 import re
 import ast
+from pprint import pprint
 
 puzzle = Puzzle(year=2021, day=18)
 puzldat = [ast.literal_eval(val) for val in puzzle.input_data.splitlines()]
 
 
 def boom(orgdd, bdd):
-    lv = bdd[0]
-    rv = bdd[1]
+    c = len(str(orgdd))
+    seg = orgdd
+    for p in bdd:
+        p = int(p)
+        orgseg = seg
+        seg = seg[p]
+        if p == 0:
+            c -= (len(str(orgseg[1]))+3)
+        if p == 1:
+            c -= 1
+    lg = re.match('^.*(\[\d+, \d+\])$', str(orgdd)[:c])[1]
+    lgl = ast.literal_eval(lg)
+    lv = lgl[0]
+    rv = lgl[1]
     co = str(orgdd)
-    cb = str(bdd)
-    coi = co.index(cb)
-    lf = co[:coi]
+    lf = co[:(c - len(lg))]
     lo = boomadd(lf, lv, drc='l')
-    rf = co[coi+len(cb):]
+    rf = co[c:]
     ro = boomadd(rf, rv, drc='r')
     return ast.literal_eval(lo + '0' + ro)    
 
@@ -42,18 +53,19 @@ def boomadd(s, v, drc = 'r'):
         return s
 
 
-def _exploder(dd, lvl=0, pth=None, orgdd=None):
+def _exploder(dd, entry=None, lvl=0, pth='', orgdd=None):
+    # print(f"Entering\n\tlvl: {lvl}\n\tdd: {dd}")
+    if entry != None:
+        pth += str(entry)
     if orgdd == None:
         orgdd = dd
-    if pth == None:
-        pth = []    
     if lvl == 4 and isinstance(dd, list):
-        return boom(orgdd, dd)
+        # print(f"Exploding\n\tdd: {dd}\n\tpth: {pth}")
+        return boom(orgdd, pth)
     if isinstance(dd, list):
         lvl += 1
         for id in range(len(dd)):
-            pth.append(id)
-            res = _exploder(dd[id], lvl, pth, orgdd)
+            res = _exploder(dd[id], id, lvl, pth, orgdd)
             if res is not None:
                 return res
 
@@ -73,7 +85,6 @@ def splitter(dd):
         coi = cd.index(sv[0])
         lf = cd[:coi]
         rf = cd[coi+len(sv[0]):]
-        sv = [11]
         r = int(sv[0]) / 2
         o = lf + f"[{math.floor(r)}, {math.ceil(r)}]" + rf
         return ast.literal_eval(o)
@@ -84,9 +95,11 @@ def splitter(dd):
 def reducer(dd):
     hd = dd
     dd = exploder(dd)
+    # print(f"EXPLODER OUTPUT: {dd}")
     if dd != hd:
         return reducer(dd)
     dd = splitter(dd)
+    # print(f"SPLITTER OUTPUT: {dd}")
     if dd != hd:
         return reducer(dd)
     return dd
@@ -95,45 +108,22 @@ def reducer(dd):
 def adder(dd):
     sm = dd[0]
     for d in dd[1:]:
+        # print(f"ADDER INPUT:\n\tL: {sm}\n\tR: {d}")
         sm = [sm, d]
+        # print(f"ADDER OUTPUT:\n\t{sm}")
         sm = reducer(sm)
     return sm
 
 
-td = [[[[[4,3],4],4],[7,[[8,4],9]]], [1,1]]
+def magnitude(sm):
+    if isinstance(sm, int):
+        return sm
+    else:
+        return 3 * magnitude(sm[0]) + 2 * magnitude(sm[1])
 
-td = [[[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]],
-[7,[[[3,7],[4,3]],[[6,3],[8,8]]]],
-[[2,[[0,8],[3,4]]],[[[6,7],1],[7,[1,6]]]],
-[[[[2,4],7],[6,[0,5]]],[[[6,8],[2,8]],[[2,1],[4,5]]]],
-[7,[5,[[3,8],[1,4]]]],
-[[2,[2,2]],[8,[8,1]]],
-[2,9],
-[1,[[[9,3],9],[[9,0],[0,7]]]],
-[[[5,[7,4]],7],1],
-[[[[4,2],2],6],[8,7]]]
 
-adder(td)
-adder(td[:2])
+# Pt 1. Answer
+magnitude(adder(puzldat))
 
-"""
-  [[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]]
-+ [7,[[[3,7],[4,3]],[[6,3],[8,8]]]]
-= [[[[4,0],[5,4]],[[7,7],[6,0]]],[[8,[7,7]],[[7,9],[5,0]]]]
-"""
-adder([[[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]], [7,[[[3,7],[4,3]],[[6,3],[8,8]]]]])
-# [[[[4, 0], [5, 4]], [[7, 7], [6, 0]]], [[8, [7, 7]], [[7, 9], [5, 0]]]]
-"""
-  [[[[4,0],[5,4]],[[7,7],[6,0]]],[[8,[7,7]],[[7,9],[5,0]]]]
-+ [[2,[[0,8],[3,4]]],[[[6,7],1],[7,[1,6]]]]
-= [[[[6,7],[6,7]],[[7,7],[0,7]]],[[[8,7],[7,7]],[[8,8],[8,0]]]]
-"""
 
-adder([[[[[4,0],[5,4]],[[7,7],[6,0]]],[[8,[7,7]],[[7,9],[5,0]]]],
-[[2,[[0,8],[3,4]]],[[[6,7],1],[7,[1,6]]]]
-])
-#[[[6, 5], [[6, 5], [5, 6]]], [[6, [6, 6]], [[7, 0], [7, 8]]]]
 
-reducer([[[[[4,0],[5,4]],[[7,7],[6,0]]],[[8,[7,7]],[[7,9],[5,0]]]], [[2,[[0,8],[3,4]]],[[[6,7],1],[7,[1,6]]]]])
-
-reducer
