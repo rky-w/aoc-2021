@@ -4,6 +4,7 @@ import sys
 from aocd.models import Puzzle
 from copy import deepcopy
 from collections import defaultdict, Counter
+import itertools
 import numpy as np
 import pandas as pd
 import time
@@ -124,6 +125,10 @@ def magnitude(sm):
 
 # Pt 1. Answer
 magnitude(adder(puzldat))
+
+
+# Pt 2. Largest magnitude
+max(magnitude(adder([x, y])) for x, y in itertools.permutations(puzldat, 2))
 
 
 
