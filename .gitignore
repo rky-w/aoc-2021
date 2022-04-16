@@ -5,3 +5,4 @@ env/
 .python-version
 
 test.py
+testdat.txt
