@@ -11,6 +11,8 @@ import math
 import re
 import ast
 from pprint import pprint
+from scipy.spatial.transform import Rotation as R
+
 
 puzzle = Puzzle(year=2021, day=19)
 puzldat = [val for val in puzzle.input_data.splitlines()]
@@ -31,6 +33,19 @@ def loader(dat):
 
 pdat = loader(puzldat)
 tdat = loader(testdat)
+
+
+pairs = ['zx', 'xy', 'yz']
+flips = [0, 180]
+spins = [0, 90, 180, 270]
+
+for pair in pairs:
+    for flip in flips:
+        for spin in spins:
+            print(pair, flip, spin)
+            r = R.from_euler(pair, [flip, spin], degrees=True)
+            print(r.as_euler('xyz', degrees=True))
+
 
 
 
