@@ -49,7 +49,30 @@ pdat = loader(puzldat)
 tdat = loader(testdat)
 
 
+<<<<<<< HEAD
 ntdat = [reorientor(dat) for dat in tdat]
+=======
+def reorientor(vec):
+    pairs = ['zx', 'xy', 'yz']
+    flips = [0, 180]
+    spins = [0, 90, 180, 270]
+    arrs = []
+    for pair in pairs:
+        for flip in flips:
+            for spin in spins:
+                # print(pair, flip, spin)
+                r = R.from_euler(pair, [flip, spin], degrees=True)
+                # print(r.as_euler('xyz', degrees=True))
+                arrs.append(np.array(np.round(r.apply(vec)), dtype=int))
+    return arrs
+
+res = list(map(reorientor, tdat))
+
+
+
+
+
+>>>>>>> a382341f5e73be7d80d648e28956144d96d320a0
 
 lst = [str(n[3]) for n in ntdat[0]]
 pprint(lst)
