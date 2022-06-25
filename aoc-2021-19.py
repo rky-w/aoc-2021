@@ -36,8 +36,8 @@ tdat = loader(testdat)
 
 
 def reorientor(vec):
-    pairs = ['zx', 'xy', 'yz']
-    flips = [0, 180]
+    pairs = [x+y for x, y in itertools.permutations(['x', 'y', 'z'], r=2)]
+    flips = [0, 90, 180, 270]
     spins = [0, 90, 180, 270]
     arrs = []
     for pair in pairs:
@@ -46,10 +46,15 @@ def reorientor(vec):
                 # print(pair, flip, spin)
                 r = R.from_euler(pair, [flip, spin], degrees=True)
                 # print(r.as_euler('xyz', degrees=True))
-                arrs.append(np.array(np.round(r.apply(vec)), dtype=int))
+                arr = np.array(np.round(r.apply(vec)), dtype=int)
+                #if arr not in arrs:
+                if str(arr) not in [str(x) for x in arrs]:
+                    arrs.append(arr)
+                # len(set([str(x) for x in res[0]]))
     return arrs
 
 res = list(map(reorientor, tdat))
+
 
 
 
