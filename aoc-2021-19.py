@@ -61,4 +61,27 @@ for x in ntdat[0]:
 
 # Second example - need to work out how to check for overlap...
 scn0 = tdat2[0]
-scnl = [reorientor(dat) for dat in tdat[1]]
+scnl = reorientor(tdat2[1])
+scn0
+len(scnl)
+
+
+# Different approach - findings pairwise distances
+def dist(tup):
+    """ tup = tuple of coordinate arrays """
+    return np.sqrt(np.sum((tup[0] - tup[1])**2, axis=0))
+
+
+ta = np.array([[1,2,3], [4,5,6], [7,8,9]])
+
+tups = itertools.combinations(ta, r=2)
+dsts = map(dist, tups)
+[i for i in dsts]
+
+
+
+for arr in tdat2:
+    tups = map(dist, itertools.combinations(arr, r=2))
+
+dists = [list(map(dist, itertools.combinations(arr, r=2))) for arr in tdat2]
+
