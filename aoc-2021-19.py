@@ -78,5 +78,7 @@ dists = [list(map(dist, itertools.combinations(arr, r=2))) for arr in tdat2]
 # Indexes of coords for dists
 distsi = [list(itertools.combinations(range(len(arr)), r=2)) for arr in tdat2]
 
-len(dists)
-distsi
+# Find common distances between scanners
+comdists = set(arr for scn in dists for arr in scn)
+
+# YOU ARE HERE - Need to dedupe scanner lists based on common distances
