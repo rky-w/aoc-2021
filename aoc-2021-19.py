@@ -66,22 +66,17 @@ scn0
 len(scnl)
 
 
-# Different approach - findings pairwise distances
+
+## Different approach - findings pairwise distances
 def dist(tup):
     """ tup = tuple of coordinate arrays """
     return np.sqrt(np.sum((tup[0] - tup[1])**2, axis=0))
 
-
-ta = np.array([[1,2,3], [4,5,6], [7,8,9]])
-
-tups = itertools.combinations(ta, r=2)
-dsts = map(dist, tups)
-[i for i in dsts]
-
-
-
-for arr in tdat2:
-    tups = map(dist, itertools.combinations(arr, r=2))
-
+# Distances
 dists = [list(map(dist, itertools.combinations(arr, r=2))) for arr in tdat2]
 
+# Indexes of coords for dists
+distsi = [list(itertools.combinations(range(len(arr)), r=2)) for arr in tdat2]
+
+len(dists)
+distsi
